@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+	<meta charset="utf-8">
+	<title>Pokemon: Legendary</title>
+	<script src="d3/d3.js" charset="utf-8"></script>
+    </head>
+    <body>
+	<script type="text/javascript">
+
+	 //Display specifications
+	 var margin = {top: 10, right: 10, bottom: 10, left: 10};
+	 var width = 900 - margin.left - margin.right;
+	 var height = 300 - margin.top - margin.bottom;
+
+	 var col = 89;
+	 var row = 9;
+
+	 var svg = d3.select("body")
+		     .append("svg")
+		     .attr("width", width + margin.left + margin.right)
+		     .attr("height", height + margin.top + margin.bottom)
+		     .append("g")
+		     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+	 d3.csv("resources/pokemonFill.csv", function (d) {
+	     return {
+		 pokedexNo: d.pokedex_number,
+		 name: d.name,
+		 type1: d.type1,
+		 type2: d.type2,
+		 isLegendary: d.is_legendary,
+		 baseTotal: d.base_total
+	     };
+	 }).then(function (data) {
+
+	     //console.log(data);
+
+	     //Set scales
+	     var xScale = d3.scaleLinear()
+			    .domain([0, col])
+			    .range([0, width]);
+	     
+	     var yScale = d3.scaleLinear()
+			    .domain([0, row])
+			    .range([0, height]);
+
+	     var rect = svg.selectAll("rect")
+			   .data(data)
+			   .enter()
+			   .append("rect")
+			   .attr("x", function (d, i) {
+			       return xScale(i % col);
+			   })
+			   .attr("y", function (d, i) {
+			       return yScale(Math.floor(i / col));
+			   })
+			   .attr("width", width / col)
+			   .attr("height", height / row)
+	     		   .style("fill", function (d) {
+			       if (d.isLegendary == 0) {
+				   return "orange";
+			       } else {
+				   return "blue";
+			       }
+			   })
+			   .on("mouseover", function (d, i) {
+			       d3.select(this).transition()
+				 .attr("x", function (d) {
+				     return xScale((d.pokedexNo - 1) % col);
+				 })
+				 .attr("y", function (d, i) {
+				     return yScale(Math.floor((d.pokedexNo - 1) / col));
+				 })
+				 .attr("width", width / col)
+				 .attr("height", height / row)
+				 .style("fill", "green");
+			   })
+			   .on("mouseout", function (d, i) {
+			       d3.select(this).transition()
+				 .attr("x", function (d, i) {
+				     return xScale((d.pokedexNo - 1) % col);
+				 })
+				 .attr("y", function (d, i) {
+				     return yScale(Math.floor((d.pokedexNo - 1) / col));
+				 })
+				 .attr("width", width / col)
+				 .attr("height", height / row)
+				 .style("fill", function (d) {
+				     if (d.isLegendary == 0) {
+					 return "orange";
+				     } else {
+					 return "blue";
+				     }
+				 })
+			   })
+			   .append("title")
+			   .text(function (d) {
+			       return "Pokedex No. " + d.pokedexNo + "\nLegendary: " + d.isLegendary;
+			   });
+
+	 });
+	</script>
+    </body>
+</html>
