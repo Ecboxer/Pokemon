@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+	<meta charset="utf-8">
+	<title>Pokemon: Team</title>
+	<script src="d3/d3.js" charset="utf-8"></script>
+    </head>
+    <body>
+	<script type="text/javascript">
+
+	 //Display specifications
+	 var margin = {top: 10, right: 10, bottom: 10, left: 10};
+	 var width = 900 - margin.left - margin.right;
+	 var height = 300 - margin.top - margin.bottom;
+
+	 var col = 89;
+	 var row = 9;
+	 var pad = 1;
+
+	 //Pokemon type colors
+	 var typeDict = {'normal': '#A8A77A',
+			 'fire': '#EE8130',
+			 'water': '#6290F0',
+			 'electric': '#F7D02C',
+			 'grass': '#7AC74C',
+			 'ice': '#96D9D6',
+			 'fighting': '#C22E28',
+			 'poison': '#A33EA1',
+			 'ground': '#E2BF65',
+			 'flying': '#A98FF3',
+			 'psychic': '#F95587',
+			 'bug': '#A6B91A',
+			 'rock': '#B6A136',
+			 'ghost': '#735797',
+			 'dragon': '#6F35FC',
+			 'dark': '#705746',
+			 'steel': '#B7B7CE',
+			 'fairy': '#D685AD'};
+
+	 var svg = d3.select("body")
+		     .append("svg")
+		     .attr("width", width + margin.left + margin.right)
+		     .attr("height", height + margin.top + margin.bottom)
+		     .append("g")
+		     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+	 d3.csv("resources/pokemonFill.csv", function (d) {
+	     return {
+		 pokedexNo: d.pokedex_number,
+		 name: d.name,
+		 type1: d.type1,
+		 type2: d.type2,
+		 isLegendary: d.is_legendary,
+		 baseTotal: d.base_total
+	     };
+	 }).then(function (data) {
+
+	     //console.log(data);
+
+	     //Set scales
+	     var xScale = d3.scaleLinear()
+			    .domain([0, col])
+			    .range([0, width]);
+	     
+	     var yScale = d3.scaleLinear()
+			    .domain([0, row])
+			    .range([0, height]);
+
+	     var rect = svg.selectAll("rect")
+			   .data(data)
+			   .enter()
+			   .append("rect")
+			   .attr("x", function (d, i) {
+			       return xScale(i % col);
+			   })
+			   .attr("y", function (d, i) {
+			       return yScale(Math.floor(i / col));
+			   })
+			   .attr("width", width / col)
+			   .attr("height", height / row)
+	     		   .style("fill", function (d) { return typeDict[d.type1]; })
+			   .on("mouseover", function (d, i) {
+			       d3.select(this).transition()
+				 .attr("x", function (d) {
+				     return xScale((d.pokedexNo - 1) % col);
+				 })
+				 .attr("y", function (d, i) {
+				     return yScale(Math.floor((d.pokedexNo - 1) / col));
+				 })
+				 .attr("width", width / col)
+				 .attr("height", height / row)
+				 .style("fill", "black");
+			   })
+			   .on("mouseout", function (d, i) {
+			       d3.select(this).transition()
+				 .attr("x", function (d, i) {
+				     return xScale((d.pokedexNo - 1) % col);
+				 })
+				 .attr("y", function (d, i) {
+				     return yScale(Math.floor((d.pokedexNo - 1) / col));
+				 })
+				 .attr("width", width / col)
+				 .attr("height", height / row)
+				 .style("fill", function (d) { return typeDict[d.type1]; })
+			   })
+			   .append("title")
+			   .text(function (d) {
+			       return d.name +
+				      "\nType1: " + d.type1[0].toUpperCase() + d.type1.substring(1, d.type1.length) +
+				      "\nType2: " + d.type2[0].toUpperCase() + d.type2.substring(1, d.type2.length);
+			   });
+
+	 });
+	</script>
+    </body>
+</html>
