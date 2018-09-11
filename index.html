@@ -66,51 +66,114 @@
 			    .domain([0, row])
 			    .range([0, height]);
 
-	     var rect = svg.selectAll("rect")
-			   .data(data)
-			   .enter()
-			   .append("rect")
-			   .attr("x", function (d, i) {
-			       return xScale(i % col);
-			   })
-			   .attr("y", function (d, i) {
-			       return yScale(Math.floor(i / col));
-			   })
-			   .attr("width", width / col)
-			   .attr("height", height / row)
-	     		   .style("fill", function (d) { return typeDict[d.type1]; })
-			   .on("mouseover", function (d, i) {
-			       d3.select(this).transition()
-				 .attr("x", function (d) {
-				     return xScale((d.pokedexNo - 1) % col);
-				 })
-				 .attr("y", function (d, i) {
-				     return yScale(Math.floor((d.pokedexNo - 1) / col));
-				 })
-				 .attr("width", width / col)
-				 .attr("height", height / row)
-				 .style("fill", "black");
-			   })
-			   .on("mouseout", function (d, i) {
-			       d3.select(this).transition()
-				 .attr("x", function (d, i) {
-				     return xScale((d.pokedexNo - 1) % col);
-				 })
-				 .attr("y", function (d, i) {
-				     return yScale(Math.floor((d.pokedexNo - 1) / col));
-				 })
-				 .attr("width", width / col)
-				 .attr("height", height / row)
-				 .style("fill", function (d) { return typeDict[d.type1]; })
-			   })
-			   .append("title")
-			   .text(function (d) {
-			       return d.name +
-				      "\nType1: " + d.type1[0].toUpperCase() + d.type1.substring(1, d.type1.length) +
-				      "\nType2: " + d.type2[0].toUpperCase() + d.type2.substring(1, d.type2.length);
-			   });
+	     var rect1 = svg.selectAll("rect")
+			    .data(data)
+			    .enter()
+			    .append("rect")
+			    .attr("x", function (d, i) {
+				return xScale(i % col);
+			    })
+			    .attr("y", function (d, i) {
+				return yScale(Math.floor(i / col));
+			    })
+			    .attr("width", width / col)
+			    .attr("height", height / row / 2)
+	     		    .style("fill", function (d) { return typeDict[d.type1]; })
+			    .on("mouseover", function (d, i) {
+				d3.select(this).transition()
+				  .attr("x", function (d) {
+				      return xScale((d.pokedexNo - 1) % col);
+				  })
+				  .attr("y", function (d, i) {
+				      return yScale(Math.floor((d.pokedexNo - 1) / col));
+				  })
+				  .attr("width", width / col)
+				  .attr("height", height / row / 2)
+				  .style("fill", "black");
+			    })
+			    .on("mouseout", function (d, i) {
+				d3.select(this).transition()
+				  .attr("x", function (d, i) {
+				      return xScale((d.pokedexNo - 1) % col);
+				  })
+				  .attr("y", function (d, i) {
+				      return yScale(Math.floor((d.pokedexNo - 1) / col));
+				  })
+				  .attr("width", width / col)
+				  .attr("height", height / row / 2)
+				  .style("fill", function (d) { return typeDict[d.type1]; })
+			    })
+			    .append("title")
+			    .text(function (d) {
+				return d.name +
+				       "\nType1: " + d.type1[0].toUpperCase() + d.type1.substring(1, d.type1.length) +
+				       "\nType2: " + d.type2[0].toUpperCase() + d.type2.substring(1, d.type2.length);
+			    });
 
+	     svg.selectAll(".in")
+		.data(data)
+		.enter()
+		.append("rect")
+		.attr("x", function (d, i) {
+		    return xScale(i % col);
+		})
+		.attr("y", function (d, i) {
+		    return yScale(Math.floor(i / col)) + height / row / 2;
+		})
+		.attr("width", width / col)
+		.attr("height", height / row / 2)
+	     	.style("fill", function (d) {
+		    if (d.type2 == 'None') {
+			return typeDict[d.type1];
+		    } else {
+			return typeDict[d.type2];
+		    }
+		})
+		.on("mouseover", function (d, i) {
+		    d3.select(this).transition()
+		      .attr("x", function (d) {
+			  return xScale((d.pokedexNo - 1) % col);
+		      })
+		      .attr("y", function (d, i) {
+			  return yScale(Math.floor((d.pokedexNo - 1) / col)) + height / row / 2;
+		      })
+		      .attr("width", width / col)
+		      .attr("height", height / row / 2)
+		      .style("fill", "black");
+		})
+		.on("mouseout", function (d, i) {
+		    d3.select(this).transition()
+		      .attr("x", function (d, i) {
+			  return xScale((d.pokedexNo - 1) % col);
+		      })
+		      .attr("y", function (d, i) {
+			  return yScale(Math.floor((d.pokedexNo - 1) / col)) + height / row / 2;
+		      })
+		      .attr("width", width / col)
+		      .attr("height", height / row / 2)
+		      .style("fill", function (d) { return typeDict[d.type1]; })
+		})
+		.append("title")
+		.text(function (d) {
+		    return d.name +
+			   "\nType1: " + d.type1[0].toUpperCase() + d.type1.substring(1, d.type1.length) +
+			   "\nType2: " + d.type2[0].toUpperCase() + d.type2.substring(1, d.type2.length);
+		});
 	 });
+
+	 //Type color legend
+	 //Does nothing ... yet
+	 var svg2 = d3.select("body").append("svg")
+		     .selectAll("rect")
+		     .data(typeDict)
+		     .enter()
+		     .append("data")
+		     .attr("x", 100)
+		     .attr("y", 100)
+		     .attr("width", 50)
+		     .attr("height", 50)
+		     .style("fill", "black");
+
 	</script>
     </body>
 </html>
