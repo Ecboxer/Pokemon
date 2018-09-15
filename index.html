@@ -119,6 +119,16 @@
 		 name: d.name,
 		 type1: d.type1,
 		 type2: d.type2,
+		 type3: d.type1_alt,
+		 type4: d.type2_alt,
+		 type5: d.type1_alt1,
+		 type6: d.type2_alt1,
+		 type7: d.type1_alt2,
+		 type8: d.type2_alt2,
+		 type9: d.type1_alt3,
+		 type10: d.type2_alt3,
+		 type11: d.type1_alt4,
+		 type12: d.type2_alt4,
 		 forms: d.forms,
 		 againstBug: d.against_bug,
 		 againstDark: d.against_dark,
@@ -164,6 +174,7 @@
 			    .enter()
 			    .append("rect")
 			    .attr("class", "poke pokeType1")
+			    .attr("id", function (d) { return d.pokedexNo; })
 			    .attr("x", function (d, i) {
 				return xScale(i % col);
 			    })
@@ -173,12 +184,20 @@
 			    .attr("width", function (d) {
 				if (d.forms == 1) {
 				    return (width / col - 2);
-				} else {
+				} else if (d.forms == 2 || d.forms == 3 || d.forms == 4 || d.forms == 6) {
 				    return (width / col - 2) / 2;
+				} else {
+				    return (width / col - 2) / 6;
 				}
 			    })
 			    .attr("height", height / row / 2 - 1)
-	     		    .style("fill", function (d) { return typeDict[d.type1]; })
+	     		    .style("fill", function (d) {
+				if (d.pokedexNo == 741) { // Oricorio
+				    return typeDict[d.type2];
+				} else {
+				    return typeDict[d.type1];
+				}
+			    })
 			    .on("mouseover", function (d, i) {
 				d3.select(this).transition()
 				  .attr("x", function (d) {
@@ -190,8 +209,10 @@
 				  .attr("width", function (d) {
 				      if (d.forms == 1) {
 					  return (width / col - 2);
-				      } else {
+				      } else if (d.forms == 2 || d.forms == 3 || d.forms == 4 || d.forms == 6) {
 					  return (width / col - 2) / 2;
+				      } else {
+					  return (width / col - 2) / 6;
 				      }
 				  })
 				  .attr("height", height / row / 2 - 1)
@@ -208,16 +229,24 @@
 				  .attr("width", function (d) {
 				      if (d.forms == 1) {
 					  return (width / col - 2);
-				      } else {
+				      } else if (d.forms == 2 || d.forms == 3 || d.forms == 4 || d.forms == 6) {
 					  return (width / col - 2) / 2;
+				      } else {
+					  return (width / col - 2) / 6;
 				      }
 				  })
 				  .attr("height", height / row / 2 - 1)
-				  .style("fill", function (d) { return typeDict[d.type1]; })
+	     			  .style("fill", function (d) {
+				      if (d.pokedexNo == 741) { // Oricorio
+					  return typeDict[d.type2];
+				      } else {
+					  return typeDict[d.type1];
+				      }
+				  })
 			    })
 			    .append("title")
 			    .text(function (d) {
-				return d.name +
+				return d.pokedexNo + " " + d.name +
 				       "\nType1: " + d.type1[0].toUpperCase() + d.type1.substring(1, d.type1.length) +
 				       "\nType2: " + d.type2[0].toUpperCase() + d.type2.substring(1, d.type2.length);
 			    });
@@ -227,6 +256,7 @@
 			    .enter()
 			    .append("rect")
 			    .attr("class", "poke pokeType2")
+			    .attr("id", function (d) { return d.pokedexNo; })
 			    .attr("x", function (d, i) {
 				return xScale(i % col);
 			    })
@@ -236,13 +266,19 @@
 			    .attr("width", function (d) {
 				if (d.forms == 1) {
 				    return (width / col - 2);
-				} else {
+				} else if (d.forms == 2 || d.forms == 3 || d.forms == 4 || d.forms == 6) {
 				    return (width / col - 2) / 2;
+				} else {
+				    return (width / col - 2) / 6;
 				}
 			    })
 			    .attr("height", height / row / 2 - 1)
 	     		    .style("fill", function (d) {
-				if (d.type2 == 'None') {
+				if (d.forms == 3 || d.forms == 6) { // Wormadam, Necrozma, Rotom
+				    return typeDict[d.type1];
+				} else if (d.pokedexNo == 351) {
+				    return typeDict[d.type3];
+				} else if (d.type2 == 'None') {
 				    return typeDict[d.type1];
 				} else {
 				    return typeDict[d.type2];
@@ -259,8 +295,10 @@
 				  .attr("width", function (d) {
 				      if (d.forms == 1) {
 					  return (width / col - 2);
-				      } else {
+				      } else if (d.forms == 2 || d.forms == 3 || d.forms == 4 || d.forms == 6) {
 					  return (width / col - 2) / 2;
+				      } else {
+					  return (width / col - 2) / 6;
 				      }
 				  })
 				  .attr("height", height / row / 2 - 1)
@@ -277,13 +315,19 @@
 				  .attr("width", function (d) {
 				      if (d.forms == 1) {
 					  return (width / col - 2);
-				      } else {
+				      } else if (d.forms == 2 || d.forms == 3 || d.forms == 4 || d.forms == 6) {
 					  return (width / col - 2) / 2;
+				      } else {
+					  return (width / col - 2) / 6;
 				      }
 				  })
 				  .attr("height", height / row / 2 - 1)
-				  .style("fill", function (d) {
-				      if (d.type2 == 'None') {
+	     			  .style("fill", function (d) {
+				      if (d.forms == 3 || d.forms == 6) { // Wormadam, Necrozma, Rotom
+					  return typeDict[d.type1];
+				      } else if (d.pokedexNo == 351) {
+					  return typeDict[d.type3];
+				      } else if (d.type2 == 'None') {
 					  return typeDict[d.type1];
 				      } else {
 					  return typeDict[d.type2];
@@ -296,7 +340,122 @@
 				       "\nType1: " + d.type1[0].toUpperCase() + d.type1.substring(1, d.type1.length) +
 				       "\nType2: " + d.type2[0].toUpperCase() + d.type2.substring(1, d.type2.length);
 			    });
-	     
+
+	     var rect3 = svg.selectAll(".in")
+			    .data(data)
+			    .enter()
+			    .append("rect")
+			    .attr("class", "poke pokeType3")
+			    .attr("id", function (d) { return d.pokedexNo; })
+			    .attr("x", function (d, i) {
+				if (d.forms == 2 || d.forms == 3 || d.forms == 4 || d.forms == 6) {
+				    return xScale(i % col) + (width / col - 2) / 2;
+				} else if (d.forms == 18) {
+				    return xScale(i % col) + (width / col - 2) / 6;
+				} else {
+				    return null;
+				}
+			    })
+			    .attr("y", function (d, i) {
+				return yScale(Math.floor(i / col));
+			    })
+			    .attr("width", function (d) {
+				if (d.forms == 2 || d.forms == 3 || d.forms == 4 || d.forms == 6) {
+				    return (width / col - 2) / 2;
+				} else if (d.forms == 18) {
+				    return (width / col - 2) / 6;
+				} else {
+				    return null;
+				}
+			    })
+			    .attr("height", function (d, i) {
+				if (d.forms == 3) { // Necrozma and Wormadam
+				    return (height / row / 2 - 1) * (2 / 3);
+				} else if (d.pokedexNo == 741) { // Oricorio
+				    return (height / row / 2 - 1) * (1 / 2);
+				} else if (d.forms == 6) { // Rotom
+				    return (height / row / 2 - 1) * (1 / 6);
+				} else {
+				    return height / row / 2 - 1;
+				}
+			    })
+	     		    .style("fill", function (d, i) {
+				if (d.forms == 18) { // Arceus and Silvally
+				    return 'red';
+				} else if (d.pokedexNo == 351) { // Castform
+				    return typeDict[d.type5];
+				} else if (d.forms == 6) { // Rotom and Wormadam
+				    return typeDict[d.type2];
+				} else if (d.pokedexNo == 413) {
+				    return typeDict[d.type2];
+				} else if (d.pokedexNo == 741) { // Oricorio
+				    return typeDict[d.type1];
+				} else if (d.pokedexNo == 800) { // Necrozma
+				    return typeDict['psychic'];
+				} else {
+				    return typeDict[d.type3];
+				}
+			    });
+
+	     var rect4 = svg.selectAll(".in")
+			    .data(data)
+			    .enter()
+			    .append("rect")
+			    .attr("class", "poke pokeType4")
+			    .attr("id", function (d) { return d.pokedexNo; })
+			    .attr("x", function (d, i) {
+				if (d.forms == 2 || d.forms == 3 || d.forms == 4 || d.forms == 6) {
+				    return xScale(i % col) + (width / col - 2) / 2;
+				} else if (d.forms == 18) {
+				    return xScale(i % col) + (width / col - 2) / 6;
+				} else {
+				    return null;
+				}
+			    })
+			    .attr("y", function (d, i) {
+				if (d.forms == 3) {
+				    return yScale(Math.floor(i / col)) + (height / row / 2 - 1) * (2 / 3);
+				} else if (d.pokedexNo == 741) {
+				    return yScale(Math.floor(i / col)) + (height / row / 2 - 1) * (1 / 2);
+				} else if (d.forms == 6) {
+				    return yScale(Math.floor(i / col)) + (height / row / 2 - 1) * (1 / 6);
+				} else {
+				    return yScale(Math.floor(i / col)) + (height / row / 2 - 1);
+				}
+			    })
+			    .attr("width", function (d) {
+				if (d.forms == 2 || d.forms == 3 || d.forms == 4 || d.forms == 6) {
+				    return (width / col - 2) / 2;
+				} else if (d.forms == 18) {
+				    return (width / col - 2) / 6;
+				} else {
+				    return null;
+				}
+			    })
+			    .attr("height", function (d, i) {
+				if (d.forms == 3) { // Necrozma and Wormadam
+				    return (height / row / 2 - 1) * (2 / 3);
+				} else if (d.pokedexNo == 741) { // Oricorio
+				    return (height / row / 2 - 1) * (1 / 2);
+				} else if (d.forms == 6) { // Rotom
+				    return (height / row / 2 - 1) * (1 / 6);
+				} else {
+				    return height / row / 2 - 1;
+				}
+			    })
+	     		    .style("fill", function (d, i) {
+				if (d.forms == 6) { // Rotom
+				    return typeDict[d.type4];
+				} else if (d.pokedexNo == 351) {
+				    return typeDict[d.type7];
+				} else if (d.pokedexNo == 741) {
+				    return typeDict[d.type3];
+				} else if (d.type4 == 'None') {
+				    return typeDict[d.type3];
+				} else {
+				    return typeDict[d.type4];
+				}
+			    });
 	 });
 
 	</script>
