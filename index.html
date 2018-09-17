@@ -38,80 +38,6 @@
 			 'dark': '#705746',
 			 'steel': '#B7B7CE',
 			 'fairy': '#D685AD'};
-
-	 d3.csv("resources/typeList.csv", function (d) {
-	     return {
-		 type: d.type
-	     };
-	     
-	 }).then(function (data) {
-
-	     //console.log(data);
-
-	     var yScaleLeg = d3.scaleLinear()
-			       .domain([0, 18])
-			       .range([0, heightLeg]);
-
-	     //Type color legend
-	     var svg2 = d3.select("body")
-			  .append("svg")
-			  .attr("width", widthLeg + margin.left + margin.right)
-			  .attr("height", heightLeg + margin.top + margin.bottom)
-			  .append("g")
-			  .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-	     var rectLegend = svg2.selectAll("rect")
-				  .data(data)
-				  .enter()
-				  .append("rect")
-				  .attr("class", "legend")
-				  .attr("x", 10)
-				  .attr("y", function (d, i) {
-				      return yScaleLeg(i);
-				  })
-				  .attr("width", 20)
-				  .attr("height", 20)
-				  .style("fill", function (d) { return typeDict[d.type]; });
-
-	     var textLegend = svg2.selectAll("text")
-				  .data(data)
-				  .enter()
-				  .append("text")
-				  .attr("class", "legend")
-				  .attr("x", 40)
-				  .attr("y", function (d, i) {
-				      return yScaleLeg(i + 1) - 10;
-				  })
-				  .text( function (d) {
-				      return d.type[0].toUpperCase() + d.type.substring(1, d.type.length);
-				  })
-				  .attr("font-family", "arial")
-				  .attr("font-size", "18px")
-				  .attr("fill", function (d) { return typeDict[d.type]; });
-
-	     //Type weakness scale
-	     var typeScale = d3.scaleLinear()
-			       .domain([0.0, 0.25, 0.5, 1.0, 2.0, 4.0])
-			       .range([1.0, 0.9, 0.75, 0.5, 0.25, 0.05]);
-	     
-	     //Legend mouseover and mouseout
-	     d3.selectAll(".legend")
-	       .on("mouseover", function (d, i) {
-		   //Decrease alpha by type weakness
-		   d3.selectAll(".poke")
-		     .attr("opacity", function (dPoke) {
-			 var typeLegend = d.type[0].toUpperCase() + d.type.substring(1, d.type.length);
-			 var typeKey = "against" + typeLegend;
-			 var opacity = typeScale(dPoke[typeKey]);
-			 return opacity;
-		     });
-	       })
-	       .on("mouseout", function (d, i) {
-
-		   d3.selectAll(".poke")
-		     .attr("opacity", 1.0);
-	       });
-	 });
 	 
 	 d3.csv("resources/pokemonTypes.csv", function (d) {
 	     return {
@@ -161,6 +87,13 @@
 	     var yScale = d3.scaleLinear()
 			    .domain([0, row])
 			    .range([0, height]);
+
+	     var title = d3.select("body")
+			   .attr("x", margin.left + 100)
+			   .attr("y", margin.top)
+			   .style("font-family", "arial")
+			   .style("font-size", "18px")
+			   .text("Hover over legend to reveal weaknesses and resistances. Hover over squares to display Pokemon details. Enjoy!");
 	     
 	     var svg = d3.select("body")
 			 .append("svg")
@@ -168,7 +101,7 @@
 			 .attr("height", height + margin.top + margin.bottom)
 			 .append("g")
 			 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
+	     
 	     var rect1 = svg.selectAll("rect")
 			    .data(data)
 			    .enter()
@@ -182,12 +115,10 @@
 				return yScale(Math.floor(i / col));
 			    })
 			    .attr("width", function (d) {
-				if (d.forms == 1) {
+				if (d.forms == 1 || d.forms == 18) {
 				    return (width / col - 2);
-				} else if (d.forms == 2 || d.forms == 3 || d.forms == 4 || d.forms == 6) {
-				    return (width / col - 2) / 2;
 				} else {
-				    return (width / col - 2) / 6;
+				    return (width / col - 2) / 2;
 				}
 			    })
 			    .attr("height", height / row / 2 - 1)
@@ -197,58 +128,6 @@
 				} else {
 				    return typeDict[d.type1];
 				}
-			    })
-			    .on("mouseover", function (d, i) {
-				d3.select(this).transition()
-				  .attr("x", function (d) {
-				      return xScale((d.pokedexNo - 1) % col);
-				  })
-				  .attr("y", function (d, i) {
-				      return yScale(Math.floor((d.pokedexNo - 1) / col));
-				  })
-				  .attr("width", function (d) {
-				      if (d.forms == 1) {
-					  return (width / col - 2);
-				      } else if (d.forms == 2 || d.forms == 3 || d.forms == 4 || d.forms == 6) {
-					  return (width / col - 2) / 2;
-				      } else {
-					  return (width / col - 2) / 6;
-				      }
-				  })
-				  .attr("height", height / row / 2 - 1)
-				  .style("fill", "black");
-			    })
-			    .on("mouseout", function (d, i) {
-				d3.select(this).transition()
-				  .attr("x", function (d, i) {
-				      return xScale((d.pokedexNo - 1) % col);
-				  })
-				  .attr("y", function (d, i) {
-				      return yScale(Math.floor((d.pokedexNo - 1) / col));
-				  })
-				  .attr("width", function (d) {
-				      if (d.forms == 1) {
-					  return (width / col - 2);
-				      } else if (d.forms == 2 || d.forms == 3 || d.forms == 4 || d.forms == 6) {
-					  return (width / col - 2) / 2;
-				      } else {
-					  return (width / col - 2) / 6;
-				      }
-				  })
-				  .attr("height", height / row / 2 - 1)
-	     			  .style("fill", function (d) {
-				      if (d.pokedexNo == 741) { // Oricorio
-					  return typeDict[d.type2];
-				      } else {
-					  return typeDict[d.type1];
-				      }
-				  })
-			    })
-			    .append("title")
-			    .text(function (d) {
-				return d.pokedexNo + " " + d.name +
-				       "\nType1: " + d.type1[0].toUpperCase() + d.type1.substring(1, d.type1.length) +
-				       "\nType2: " + d.type2[0].toUpperCase() + d.type2.substring(1, d.type2.length);
 			    });
 
 	     var rect2 = svg.selectAll(".in")
@@ -264,12 +143,10 @@
 				return yScale(Math.floor(i / col)) + height / row / 2 - 1;
 			    })
 			    .attr("width", function (d) {
-				if (d.forms == 1) {
+				if (d.forms == 1 || d.forms == 18) {
 				    return (width / col - 2);
-				} else if (d.forms == 2 || d.forms == 3 || d.forms == 4 || d.forms == 6) {
-				    return (width / col - 2) / 2;
 				} else {
-				    return (width / col - 2) / 6;
+				    return (width / col - 2) / 2;
 				}
 			    })
 			    .attr("height", height / row / 2 - 1)
@@ -283,62 +160,6 @@
 				} else {
 				    return typeDict[d.type2];
 				}
-			    })
-			    .on("mouseover", function (d, i) {
-				d3.select(this).transition()
-				  .attr("x", function (d) {
-				      return xScale((d.pokedexNo - 1) % col);
-				  })
-				  .attr("y", function (d, i) {
-				      return yScale(Math.floor((d.pokedexNo - 1) / col)) + height / row / 2 - 1;
-				  })
-				  .attr("width", function (d) {
-				      if (d.forms == 1) {
-					  return (width / col - 2);
-				      } else if (d.forms == 2 || d.forms == 3 || d.forms == 4 || d.forms == 6) {
-					  return (width / col - 2) / 2;
-				      } else {
-					  return (width / col - 2) / 6;
-				      }
-				  })
-				  .attr("height", height / row / 2 - 1)
-				  .style("fill", "black");
-			    })
-			    .on("mouseout", function (d, i) {
-				d3.select(this).transition()
-				  .attr("x", function (d, i) {
-				      return xScale((d.pokedexNo - 1) % col);
-				  })
-				  .attr("y", function (d, i) {
-				      return yScale(Math.floor((d.pokedexNo - 1) / col)) + height / row / 2 - 1;
-				  })
-				  .attr("width", function (d) {
-				      if (d.forms == 1) {
-					  return (width / col - 2);
-				      } else if (d.forms == 2 || d.forms == 3 || d.forms == 4 || d.forms == 6) {
-					  return (width / col - 2) / 2;
-				      } else {
-					  return (width / col - 2) / 6;
-				      }
-				  })
-				  .attr("height", height / row / 2 - 1)
-	     			  .style("fill", function (d) {
-				      if (d.forms == 3 || d.forms == 6) { // Wormadam, Necrozma, Rotom
-					  return typeDict[d.type1];
-				      } else if (d.pokedexNo == 351) {
-					  return typeDict[d.type3];
-				      } else if (d.type2 == 'None') {
-					  return typeDict[d.type1];
-				      } else {
-					  return typeDict[d.type2];
-				      }
-				  });
-			    })
-			    .append("title")
-			    .text(function (d) {
-				return d.name +
-				       "\nType1: " + d.type1[0].toUpperCase() + d.type1.substring(1, d.type1.length) +
-				       "\nType2: " + d.type2[0].toUpperCase() + d.type2.substring(1, d.type2.length);
 			    });
 
 	     var rect3 = svg.selectAll(".in")
@@ -350,8 +171,6 @@
 			    .attr("x", function (d, i) {
 				if (d.forms == 2 || d.forms == 3 || d.forms == 4 || d.forms == 6) {
 				    return xScale(i % col) + (width / col - 2) / 2;
-				} else if (d.forms == 18) {
-				    return xScale(i % col) + (width / col - 2) / 6;
 				} else {
 				    return null;
 				}
@@ -362,8 +181,6 @@
 			    .attr("width", function (d) {
 				if (d.forms == 2 || d.forms == 3 || d.forms == 4 || d.forms == 6) {
 				    return (width / col - 2) / 2;
-				} else if (d.forms == 18) {
-				    return (width / col - 2) / 6;
 				} else {
 				    return null;
 				}
@@ -374,15 +191,13 @@
 				} else if (d.pokedexNo == 741) { // Oricorio
 				    return (height / row / 2 - 1) * (1 / 2);
 				} else if (d.forms == 6) { // Rotom
-				    return (height / row / 2 - 1) * (1 / 6);
+				    return (height / row / 2 - 1) * (1 / 3);
 				} else {
 				    return height / row / 2 - 1;
 				}
 			    })
 	     		    .style("fill", function (d, i) {
-				if (d.forms == 18) { // Arceus and Silvally
-				    return 'red';
-				} else if (d.pokedexNo == 351) { // Castform
+				if (d.pokedexNo == 351) { // Castform
 				    return typeDict[d.type5];
 				} else if (d.forms == 6) { // Rotom and Wormadam
 				    return typeDict[d.type2];
@@ -406,8 +221,6 @@
 			    .attr("x", function (d, i) {
 				if (d.forms == 2 || d.forms == 3 || d.forms == 4 || d.forms == 6) {
 				    return xScale(i % col) + (width / col - 2) / 2;
-				} else if (d.forms == 18) {
-				    return xScale(i % col) + (width / col - 2) / 6;
 				} else {
 				    return null;
 				}
@@ -415,10 +228,10 @@
 			    .attr("y", function (d, i) {
 				if (d.forms == 3) {
 				    return yScale(Math.floor(i / col)) + (height / row / 2 - 1) * (2 / 3);
-				} else if (d.pokedexNo == 741) {
+				} else if (d.pokedexNo == 741) { // Oricorio
 				    return yScale(Math.floor(i / col)) + (height / row / 2 - 1) * (1 / 2);
-				} else if (d.forms == 6) {
-				    return yScale(Math.floor(i / col)) + (height / row / 2 - 1) * (1 / 6);
+				} else if (d.forms == 6) { // Rotom
+				    return yScale(Math.floor(i / col)) + (height / row / 2 - 1) * (1 / 3);
 				} else {
 				    return yScale(Math.floor(i / col)) + (height / row / 2 - 1);
 				}
@@ -426,8 +239,6 @@
 			    .attr("width", function (d) {
 				if (d.forms == 2 || d.forms == 3 || d.forms == 4 || d.forms == 6) {
 				    return (width / col - 2) / 2;
-				} else if (d.forms == 18) {
-				    return (width / col - 2) / 6;
 				} else {
 				    return null;
 				}
@@ -438,7 +249,7 @@
 				} else if (d.pokedexNo == 741) { // Oricorio
 				    return (height / row / 2 - 1) * (1 / 2);
 				} else if (d.forms == 6) { // Rotom
-				    return (height / row / 2 - 1) * (1 / 6);
+				    return (height / row / 2 - 1) * (1 / 3);
 				} else {
 				    return height / row / 2 - 1;
 				}
@@ -456,6 +267,338 @@
 				    return typeDict[d.type4];
 				}
 			    });
+
+	     var rect5 = svg.selectAll(".in")
+			    .data(data)
+			    .enter()
+			    .append("rect")
+			    .attr("class", "poke pokeType5")
+			    .attr("id", function (d) { return d.pokedexNo; })
+			    .attr("x", function (d, i) {
+				if (d.forms == 3 || d.pokedexNo == 741 || d.forms == 6) { // Wormadam, Necrozma, Oricorio, Rotom
+				    return xScale(i % col) + (width / col - 2) / 2;
+				} else {
+				    return null;
+				}
+			    })
+			    .attr("y", function (d, i) {
+				if (d.forms == 3) { // Wormadam, Necrozma
+				    return yScale(Math.floor(i / col)) + (height / row / 2 - 1) * (4 / 3);
+				} else if (d.pokedexNo == 741) { // Oricorio
+				    return yScale(Math.floor(i / col)) + (height / row / 2 - 1);
+				} else if (d.forms == 6) { // Rotom
+				    return yScale(Math.floor(i / col)) + (height / row / 2 - 1) * (2 / 3);
+				} else {
+				    return null;
+				}
+			    })
+			    .attr("width", function (d) {
+				if (d.forms == 3 || d.pokedexNo == 741 || d.forms == 6) { // Wormadam, Necrozma, Oricorio, Rotom
+				    return (width / col - 2) / 2;
+				} else {
+				    return null;
+				}
+			    })
+			    .attr("height", function (d, i) {
+				if (d.forms == 3) { // Necrozma and Wormadam
+				    return (height / row / 2 - 1) * (2 / 3);
+				} else if (d.pokedexNo == 741) { // Oricorio
+				    return (height / row / 2 - 1) * (1 / 2);
+				} else if (d.forms == 6) { // Rotom
+				    return (height / row / 2 - 1) * (1 / 3);
+				} else {
+				    return null;
+				}
+			    })
+	     		    .style("fill", function (d, i) {
+				if (d.forms == 6) { // Rotom
+				    return typeDict[d.type6];
+				} else if (d.pokedexNo == 741) { // Oricorio
+				    return typeDict[d.type5];
+				} else if (d.forms == 3) { // Necrozma, Wormadam
+				    return typeDict[d.type6];
+				} else {
+				    return null;
+				}
+			    });
+
+	     var rect6 = svg.selectAll(".in")
+			    .data(data)
+			    .enter()
+			    .append("rect")
+			    .attr("class", "poke pokeType6")
+			    .attr("id", function (d) { return d.pokedexNo; })
+			    .attr("x", function (d, i) {
+				if (d.pokedexNo == 741 || d.forms == 6) { // Oricorio, Rotom
+				    return xScale(i % col) + (width / col - 2) / 2;
+				} else {
+				    return null;
+				}
+			    })
+			    .attr("y", function (d, i) {
+				if (d.pokedexNo == 741) { // Oricorio
+				    return yScale(Math.floor(i / col)) + (height / row / 2 - 1) * (3 / 2);
+				} else if (d.forms == 6) { // Rotom
+				    return yScale(Math.floor(i / col)) + (height / row / 2 - 1);
+				} else {
+				    return null;
+				}
+			    })
+			    .attr("width", function (d) {
+				if (d.pokedexNo == 741 || d.forms == 6) { // Oricorio, Rotom
+				    return (width / col - 2) / 2;
+				} else {
+				    return null;
+				}
+			    })
+			    .attr("height", function (d, i) {
+				if (d.pokedexNo == 741) { // Oricorio
+				    return (height / row / 2 - 1) * (1 / 2);
+				} else if (d.forms == 6) { // Rotom
+				    return (height / row / 2 - 1) * (1 / 3);
+				} else {
+				    return null;
+				}
+			    })
+	     		    .style("fill", function (d, i) {
+				if (d.forms == 6) { // Rotom
+				    return typeDict[d.type8];
+				} else if (d.pokedexNo == 741) { // Oricorio
+				    return typeDict[d.type7];
+				} else {
+				    return null;
+				}
+			    });
+
+	     var rect7 = svg.selectAll(".in")
+			    .data(data)
+			    .enter()
+			    .append("rect")
+			    .attr("class", "poke pokeType7")
+			    .attr("id", function (d) { return d.pokedexNo; })
+			    .attr("x", function (d, i) {
+				if (d.forms == 6) { // Rotom
+				    return xScale(i % col) + (width / col - 2) / 2;
+				} else {
+				    return null;
+				}
+			    })
+			    .attr("y", function (d, i) {
+				if (d.forms == 6) { // Rotom
+				    return yScale(Math.floor(i / col)) + (height / row / 2 - 1) * (4 / 3);
+				} else {
+				    return null;
+				}
+			    })
+			    .attr("width", function (d) {
+				if (d.forms == 6) { // Rotom
+				    return (width / col - 2) / 2;
+				} else {
+				    return null;
+				}
+			    })
+			    .attr("height", function (d, i) {
+				if (d.forms == 6) { // Rotom
+				    return (height / row / 2 - 1) * (1 / 3);
+				} else {
+				    return null;
+				}
+			    })
+	     		    .style("fill", function (d, i) {
+				if (d.forms == 6) { // Rotom
+				    return typeDict[d.type10];
+				} else {
+				    return null;
+				}
+			    });
+
+	     var rect8 = svg.selectAll(".in")
+			    .data(data)
+			    .enter()
+			    .append("rect")
+			    .attr("class", "poke pokeType8")
+			    .attr("id", function (d) { return d.pokedexNo; })
+			    .attr("x", function (d, i) {
+				if (d.forms == 6) { // Rotom
+				    return xScale(i % col) + (width / col - 2) / 2;
+				} else {
+				    return null;
+				}
+			    })
+			    .attr("y", function (d, i) {
+				if (d.forms == 6) { // Rotom
+				    return yScale(Math.floor(i / col)) + (height / row / 2 - 1) * (5 / 3);
+				} else {
+				    return null;
+				}
+			    })
+			    .attr("width", function (d) {
+				if (d.forms == 6) { // Rotom
+				    return (width / col - 2) / 2;
+				} else {
+				    return null;
+				}
+			    })
+			    .attr("height", function (d, i) {
+				if (d.forms == 6) { // Rotom
+				    return (height / row / 2 - 1) * (1 / 3);
+				} else {
+				    return null;
+				}
+			    })
+	     		    .style("fill", function (d, i) {
+				if (d.forms == 6) { // Rotom
+				    return typeDict[d.type12];
+				} else {
+				    return null;
+				}
+			    });
+
+	     
+	     var rect0 = svg.selectAll(".in")
+			    .data(data)
+			    .enter()
+			    .append("rect")
+			    .attr("class", "hover")
+			    .attr("id", function (d) { return d.pokedexNo; })
+			    .attr("x", function (d, i) {
+				return xScale(i % col);
+			    })
+			    .attr("y", function (d, i) {
+				return yScale(Math.floor(i / col));
+			    })
+			    .attr("width", function (d) { return (width / col - 2); })
+			    .attr("height", height / row - 1)
+	     		    .style("fill", "transparent")
+			    .on("mouseover", function (d, i) {
+				d3.select(this).transition()
+				  .style("fill", "black");
+			    })
+			    .on("mouseout", function (d, i) {
+				d3.select(this).transition()
+	     			  .style("fill", "transparent")
+			    })
+			    .append("title")
+			    .text(function (d) {
+				if (d.forms == 1 || d.forms == 18) {
+				    return d.pokedexNo + " " + d.name +
+					   "\nType1: " + d.type1[0].toUpperCase() + d.type1.substring(1, d.type1.length) +
+					   "\nType2: " + d.type2[0].toUpperCase() + d.type2.substring(1, d.type2.length);
+				} else if (d.forms == 2) {
+				    return d.pokedexNo + " " + d.name + " Forms: " + d.forms +
+					   "\nForm1 Type1: " + d.type1[0].toUpperCase() + d.type1.substring(1, d.type1.length) +
+					   "\nForm1 Type2: " + d.type2[0].toUpperCase() + d.type2.substring(1, d.type2.length) +
+					   "\nForm2 Type1: " + d.type3[0].toUpperCase() + d.type3.substring(1, d.type3.length) +
+					   "\nForm2 Type2: " + d.type4[0].toUpperCase() + d.type4.substring(1, d.type4.length);
+				} else if (d.forms == 3) {
+				    return d.pokedexNo + " " + d.name + " Forms: " + d.forms +
+					   "\nForm1 Type1: " + d.type1[0].toUpperCase() + d.type1.substring(1, d.type1.length) +
+					   "\nForm1 Type2: " + d.type2[0].toUpperCase() + d.type2.substring(1, d.type2.length) +
+					   "\nForm2 Type1: " + d.type3[0].toUpperCase() + d.type3.substring(1, d.type3.length) +
+					   "\nForm2 Type2: " + d.type4[0].toUpperCase() + d.type4.substring(1, d.type4.length) +
+					   "\nForm3 Type1: " + d.type5[0].toUpperCase() + d.type5.substring(1, d.type5.length) +
+					   "\nForm3 Type2: " + d.type6[0].toUpperCase() + d.type6.substring(1, d.type6.length);
+				} else if (d.forms == 4) {
+				    return d.pokedexNo + " " + d.name + " Forms: " + d.forms +
+					   "\nForm1 Type1: " + d.type1[0].toUpperCase() + d.type1.substring(1, d.type1.length) +
+					   "\nForm1 Type2: " + d.type2[0].toUpperCase() + d.type2.substring(1, d.type2.length) +
+					   "\nForm2 Type1: " + d.type3[0].toUpperCase() + d.type3.substring(1, d.type3.length) +
+					   "\nForm2 Type2: " + d.type4[0].toUpperCase() + d.type4.substring(1, d.type4.length) +
+					   "\nForm3 Type1: " + d.type5[0].toUpperCase() + d.type5.substring(1, d.type5.length) +
+					   "\nForm3 Type2: " + d.type6[0].toUpperCase() + d.type6.substring(1, d.type6.length) +
+					   "\nForm4 Type1: " + d.type7[0].toUpperCase() + d.type7.substring(1, d.type7.length) +
+					   "\nForm4 Type2: " + d.type8[0].toUpperCase() + d.type8.substring(1, d.type8.length);
+				} else {
+				    return d.pokedexNo + " " + d.name + " Forms: " + d.forms +
+					   "\nForm1 Type1: " + d.type1[0].toUpperCase() + d.type1.substring(1, d.type1.length) +
+					   "\nForm1 Type2: " + d.type2[0].toUpperCase() + d.type2.substring(1, d.type2.length) +
+					   "\nForm2 Type1: " + d.type3[0].toUpperCase() + d.type3.substring(1, d.type3.length) +
+					   "\nForm2 Type2: " + d.type4[0].toUpperCase() + d.type4.substring(1, d.type4.length) +
+					   "\nForm3 Type1: " + d.type5[0].toUpperCase() + d.type5.substring(1, d.type5.length) +
+					   "\nForm3 Type2: " + d.type6[0].toUpperCase() + d.type6.substring(1, d.type6.length) +
+					   "\nForm4 Type1: " + d.type7[0].toUpperCase() + d.type7.substring(1, d.type7.length) +
+					   "\nForm4 Type2: " + d.type8[0].toUpperCase() + d.type8.substring(1, d.type8.length) +
+					   "\nForm5 Type1: " + d.type9[0].toUpperCase() + d.type9.substring(1, d.type9.length) +
+					   "\nForm5 Type2: " + d.type10[0].toUpperCase() + d.type10.substring(1, d.type10.length) +
+					   "\nForm6 Type1: " + d.type11[0].toUpperCase() + d.type11.substring(1, d.type11.length) +
+					   "\nForm6 Type2: " + d.type12[0].toUpperCase() + d.type12.substring(1, d.type12.length);
+				}
+			    });
+
+	     d3.csv("resources/typeList.csv", function (d) {
+		 return {
+		     type: d.type
+		 };
+		 
+	     }).then(function (data) {
+
+		 //console.log(data);
+
+		 var yScaleLeg = d3.scaleLinear()
+				   .domain([0, 18])
+				   .range([0, heightLeg]);
+
+		 //Type color legend
+		 var svg2 = d3.select("body")
+			      .append("svg")
+			      .attr("width", widthLeg + margin.left + margin.right)
+			      .attr("height", heightLeg + margin.top + margin.bottom)
+			      .append("g")
+			      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+		 var rectLegend = svg2.selectAll("rect")
+				      .data(data)
+				      .enter()
+				      .append("rect")
+				      .attr("class", "legend")
+				      .attr("x", 10)
+				      .attr("y", function (d, i) {
+					  return yScaleLeg(i);
+				      })
+				      .attr("width", 20)
+				      .attr("height", 20)
+				      .style("fill", function (d) { return typeDict[d.type]; });
+
+		 var textLegend = svg2.selectAll("text")
+				      .data(data)
+				      .enter()
+				      .append("text")
+				      .attr("class", "legend")
+				      .attr("x", 40)
+				      .attr("y", function (d, i) {
+					  return yScaleLeg(i + 1) - 10;
+				      })
+				      .text( function (d) {
+					  return d.type[0].toUpperCase() + d.type.substring(1, d.type.length);
+				      })
+				      .attr("font-family", "arial")
+				      .attr("font-size", "18x")
+				      .attr("fill", function (d) { return typeDict[d.type]; });
+
+		 //Type weakness scale
+		 var typeScale = d3.scaleLinear()
+				   .domain([0.0, 0.25, 0.5, 1.0, 2.0, 4.0])
+				   .range([1.0, 0.9, 0.75, 0.5, 0.25, 0.05]);
+		 
+		 //Legend mouseover and mouseout
+		 d3.selectAll(".legend")
+		   .on("mouseover", function (d, i) {
+		       //Decrease alpha by type weakness
+		       d3.selectAll(".poke")
+			 .attr("opacity", function (dPoke) {
+			     var typeLegend = d.type[0].toUpperCase() + d.type.substring(1, d.type.length);
+			     var typeKey = "against" + typeLegend;
+			     var opacity = typeScale(dPoke[typeKey]);
+			     return opacity;
+			 });
+		   })
+		   .on("mouseout", function (d, i) {
+
+		       d3.selectAll(".poke")
+			 .attr("opacity", 1.0);
+		   });
+	     });
+	     
 	 });
 
 	</script>
